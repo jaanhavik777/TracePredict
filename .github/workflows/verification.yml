@@ -1,0 +1,67 @@
+name: Verify TracePredict
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: tracevault
+          POSTGRES_PASSWORD: tracevault
+          POSTGRES_DB: tracevault
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U tracevault -d tracevault"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql://tracevault:tracevault@127.0.0.1:55432/tracevault
+      AUTH_SECRET: ci-only-session-key-ephemeral-runner
+      TRACEPREDICT_WEBHOOK_SECRET: ci-only-webhook-key-ephemeral-runner
+      OLLAMA_TIMEOUT_MS: 1000
+      TV_BASE_URL: http://127.0.0.1:3037
+      TRACEPREDICT_EXPECT_MODEL: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run ops:test
+      - run: npm run ml:test
+      - run: npm run db:init -- --demo-users
+      - run: npm run db:migrate
+      - run: npm run ml:train -- --demo
+      - run: npm run build
+      - name: Run database and HTTP integration tests
+        run: |
+          set -euo pipefail
+          npm run start -- --hostname 127.0.0.1 --port 3037 > app.log 2>&1 &
+          app_pid=$!
+          npm run ops:worker > worker.log 2>&1 &
+          worker_pid=$!
+          trap 'kill "$app_pid" "$worker_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --silent --fail "$TV_BASE_URL/login" > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --silent --fail "$TV_BASE_URL/login" > /dev/null
+          docker exec -i "${{ job.services.db.id }}" psql -U tracevault -d tracevault -v ON_ERROR_STOP=1 < tests/db-tests.sql
+          node tests/api.test.mjs
+          npm run ops:test:api
+      - name: Print service logs on failure
+        if: failure()
+        run: |
+          if test -f app.log; then tail -100 app.log; fi
+          if test -f worker.log; then tail -100 worker.log; fi
