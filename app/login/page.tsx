@@ -2,6 +2,7 @@
 // Login page. OWNER: Jaanhavi
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +26,9 @@ export default function LoginPage() {
         setError(data.error ?? "Login failed");
         return;
       }
-      router.push("/incidents");
+      const user = await res.json();
+      const invite = new URLSearchParams(window.location.search).get("invite");
+      router.push(user.role === "CUSTOMER" ? invite && /^[a-f0-9]{64}$/.test(invite) ? `/signup?invite=${invite}` : "/workspace" : "/incidents");
       router.refresh();
     } catch {
       setError("Could not reach the server");
@@ -71,6 +74,7 @@ export default function LoginPage() {
         <button type="submit" disabled={busy} className="btn login-submit">
           {busy ? "Signing in…" : "Sign in"}<span aria-hidden="true">↗</span>
         </button>
+        <Link href="/signup" className="login-back">Create a workspace</Link>
       </form>
     </main>
   );

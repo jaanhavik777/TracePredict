@@ -26,11 +26,11 @@ export function alertHash(normalizedBody: string) {
   return createHash("sha256").update(normalizedBody).digest("hex");
 }
 
-export async function readAlertBody(req: Request) {
+export async function readAlertBody(req: Request, sizeLimit = maxBytes) {
   if (!req.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
     throw new HttpError(400, "Send an application/json alert");
   }
-  if (Number(req.headers.get("content-length")) > maxBytes) throw new HttpError(413, "Alert body too large");
+  if (Number(req.headers.get("content-length")) > sizeLimit) throw new HttpError(413, "Alert body too large");
   const reader = req.body?.getReader();
   if (!reader) throw new HttpError(400, "Missing alert body");
   const chunks = [];
@@ -40,7 +40,7 @@ export async function readAlertBody(req: Request) {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > maxBytes) {
+      if (size > sizeLimit) {
         await reader.cancel();
         throw new HttpError(413, "Alert body too large");
       }

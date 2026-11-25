@@ -57,8 +57,9 @@ export function requireSensitive(role: TeamRole) {
 
 export async function loadCase(client: PoolClient, caseId: string, lock = false) {
   const { rows: [record] } = await client.query<SecurityCase>(
-    `SELECT c.*, s.service_name, t.name AS team_name FROM ops.cases c
-     JOIN services s USING (service_id) JOIN ops.teams t USING (team_id) WHERE c.case_id = $1
+    `SELECT c.*, coalesce(ts.name, s.service_name) AS service_name, t.name AS team_name FROM ops.cases c
+     JOIN services s USING (service_id) JOIN ops.teams t USING (team_id)
+     LEFT JOIN ops.team_services ts ON ts.team_id = c.team_id AND ts.service_id = c.service_id WHERE c.case_id = $1
      ${lock ? "FOR UPDATE OF c" : ""}`, [caseId],
   );
   if (!record) throw new HttpError(404, "Case not found");

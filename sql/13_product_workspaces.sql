@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS ops.auth_limits (
 ALTER TABLE ops.sources ADD COLUMN IF NOT EXISTS provider TEXT NOT NULL DEFAULT 'signed' CHECK (provider IN ('signed', 'github'));
 ALTER TABLE ops.sources ADD COLUMN IF NOT EXISTS repository TEXT;
 ALTER TABLE ops.sources ADD COLUMN IF NOT EXISTS service_id INT REFERENCES public.services(service_id);
+GRANT SELECT (provider, repository, service_id, enabled) ON ops.sources TO tracepredict_ops;
 ALTER TABLE ops.cases ADD COLUMN IF NOT EXISTS source_group TEXT;
 ALTER TABLE ops.deliveries ADD COLUMN IF NOT EXISTS source_group TEXT;
 ALTER TABLE ops.alerts ADD COLUMN IF NOT EXISTS issue_url TEXT;

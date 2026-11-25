@@ -7,21 +7,23 @@ import { caseEvent } from "./coordination";
 
 type Delivery = {
   delivery_id: string; team_id: string; source_id: string;
-  payload: unknown; payload_hash: string; received_at: Date; attempts: number;
+  payload: unknown; payload_hash: string; received_at: Date; attempts: number; source_group: string | null;
 };
 
 async function processAlert(client: PoolClient, job: Delivery) {
-  const alert = alertInput.parse(job.payload);
+  const payload = job.payload as { issueUrl?: string };
+  const { issueUrl, ...fields } = payload;
+  const alert = alertInput.parse(fields);
   const teamId = job.team_id;
   await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
-    [JSON.stringify([teamId, alert.serviceId, alert.environment, alert.category])]);
+    [JSON.stringify([teamId, alert.serviceId, alert.environment, alert.category, job.source_group])]);
   const { rows: [open] } = await client.query<{ case_id: string }>(
     `SELECT case_id FROM ops.cases
      WHERE team_id = $1 AND service_id = $2 AND environment = $3 AND category = $4
        AND status <> 'RESOLVED' AND last_signal_at BETWEEN $5::timestamptz - INTERVAL '15 minutes'
-         AND $5::timestamptz + INTERVAL '15 minutes'
+         AND $5::timestamptz + INTERVAL '15 minutes' AND source_group IS NOT DISTINCT FROM $6::text
      ORDER BY last_signal_at DESC LIMIT 1 FOR UPDATE`,
-    [teamId, alert.serviceId, alert.environment, alert.category, job.received_at],
+    [teamId, alert.serviceId, alert.environment, alert.category, job.received_at, job.source_group],
   );
   const caseId = open?.case_id ?? randomUUID();
   if (open) {
@@ -31,17 +33,17 @@ async function processAlert(client: PoolClient, job: Delivery) {
     );
   } else {
     await client.query(
-      `INSERT INTO ops.cases (case_id, team_id, service_id, environment, title, category, severity, last_signal_at, opened_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)`,
-      [caseId, teamId, alert.serviceId, alert.environment, alert.title, alert.category, alert.severity, job.received_at],
+      `INSERT INTO ops.cases (case_id, team_id, service_id, environment, title, category, severity, last_signal_at, opened_at, source_group)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9)`,
+      [caseId, teamId, alert.serviceId, alert.environment, alert.title, alert.category, alert.severity, job.received_at, job.source_group],
     );
     await audit(client, teamId, null, "CASE_GROUP_OPENED", caseId);
   }
   await client.query(
-    `INSERT INTO ops.alerts (alert_id, case_id, source_id, team_id, external_id, payload_hash, title, message, severity, occurred_at, received_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+    `INSERT INTO ops.alerts (alert_id, case_id, source_id, team_id, external_id, payload_hash, title, message, severity, occurred_at, received_at, issue_url)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
     [randomUUID(), caseId, job.source_id, teamId, alert.eventId, job.payload_hash, alert.title, alert.message,
-      alert.severity, alert.occurredAt, job.received_at],
+      alert.severity, alert.occurredAt, job.received_at, issueUrl ?? null],
   );
   await caseEvent(client, { case_id: caseId, team_id: teamId }, null, "ALERT_RECEIVED", alert.title);
   await audit(client, teamId, null, "ALERT_RECEIVED", caseId);
@@ -51,7 +53,7 @@ async function processAlert(client: PoolClient, job: Delivery) {
 export async function workDelivery() {
   return withTransaction(async (client) => {
     const { rows: [job] } = await client.query<Delivery>(
-      `SELECT delivery_id, team_id, source_id, payload, payload_hash, received_at, attempts
+      `SELECT delivery_id, team_id, source_id, payload, payload_hash, received_at, attempts, source_group
        FROM ops.deliveries WHERE status = 'QUEUED' AND available_at <= clock_timestamp()
        ORDER BY available_at, delivery_id LIMIT 1 FOR UPDATE SKIP LOCKED`,
     );

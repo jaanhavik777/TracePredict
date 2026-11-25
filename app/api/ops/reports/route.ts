@@ -34,10 +34,11 @@ export async function GET(req: NextRequest) {
          GROUP BY s.source_id, s.name, t.name ORDER BY count(*) + sum(d.duplicate_count) DESC LIMIT 10`, [team],
       );
       const { rows: recurring } = await client.query(
-        `SELECT s.service_name, c.category, c.environment, count(*)::int AS cases
+        `SELECT coalesce(ts.name, s.service_name) AS service_name, c.category, c.environment, count(*)::int AS cases
          FROM ops.cases c JOIN services s USING (service_id)
+         LEFT JOIN ops.team_services ts ON ts.team_id = c.team_id AND ts.service_id = c.service_id
          WHERE ($1::uuid IS NULL OR c.team_id = $1) AND c.opened_at >= now() - INTERVAL '30 days'
-         GROUP BY s.service_id, s.service_name, c.category, c.environment HAVING count(*) > 1
+         GROUP BY s.service_id, s.service_name, ts.name, c.category, c.environment HAVING count(*) > 1
          ORDER BY count(*) DESC LIMIT 10`, [team],
       );
       const { rows: failed } = await client.query(

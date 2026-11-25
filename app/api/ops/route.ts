@@ -20,18 +20,25 @@ export async function GET(req: NextRequest) {
     const result = await workspace(user.id, async (client) => {
       if (filter.teamId) await teamRole(client, filter.teamId);
       const { rows: teams } = await client.query<Team>(
-        "SELECT team_id, name, ops.access(team_id) AS role FROM ops.teams ORDER BY name",
+        "SELECT team_id, name, customer_workspace, ops.access(team_id) AS role FROM ops.teams ORDER BY name",
       );
       const { rows: services } = await client.query<Service>(
-        "SELECT service_id, service_name, criticality FROM services ORDER BY service_name",
+        `SELECT s.service_id, ts.name AS service_name, s.criticality, ts.team_id
+         FROM ops.team_services ts JOIN services s USING (service_id)
+         UNION ALL
+         SELECT s.service_id, s.service_name, s.criticality, NULL::uuid
+         FROM services s WHERE s.service_name NOT LIKE 'workspace/%'
+           AND EXISTS (SELECT FROM ops.teams WHERE NOT customer_workspace)
+         ORDER BY service_name`,
       );
       const { rows: cases } = await client.query<CaseListItem>(
-        `SELECT c.*, t.name AS team_name, s.service_name,
+        `SELECT c.*, t.name AS team_name, coalesce(ts.name, s.service_name) AS service_name,
              (SELECT count(*)::int FROM ops.alerts a WHERE a.case_id = c.case_id) AS alert_count
          FROM ops.cases c JOIN ops.teams t USING (team_id) JOIN services s USING (service_id)
+         LEFT JOIN ops.team_services ts ON ts.team_id = c.team_id AND ts.service_id = c.service_id
          WHERE ($1::uuid IS NULL OR c.team_id = $1) AND ($2::text IS NULL OR c.status = $2)
            AND ($3::text IS NULL OR strpos(lower(c.title), lower($3)) > 0
-             OR strpos(lower(s.service_name), lower($3)) > 0
+             OR strpos(lower(coalesce(ts.name, s.service_name)), lower($3)) > 0
              OR EXISTS (SELECT FROM ops.alerts a WHERE a.case_id = c.case_id AND strpos(lower(a.message), lower($3)) > 0)
              OR EXISTS (SELECT FROM ops.evidence e WHERE e.case_id = c.case_id AND strpos(lower(e.summary), lower($3)) > 0))
          ORDER BY c.opened_at DESC LIMIT 100`,

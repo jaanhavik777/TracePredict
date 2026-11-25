@@ -12,16 +12,16 @@ export default function NavBar() {
   const [me, setMe] = useState<Me | null>(null);
 
   useEffect(() => {
-    if (pathname === "/login") { setMe(null); return; }
+    if (["/", "/login", "/signup", "/demo"].includes(pathname)) { setMe(null); return; }
     api<Me>("/api/auth/me").then(setMe).catch(() => setMe(null));
   }, [pathname]);
 
-  if (pathname === "/login") return null;
+  if (["/", "/login", "/signup", "/demo"].includes(pathname)) return null;
 
   const links = [
     { href: "/ops", label: "Security Ops" },
-    { href: "/incidents", label: "Incidents" },
-    { href: "/search", label: "Search" },
+    ...(me?.role === "CUSTOMER" ? [{ href: "/workspace", label: "Connections" }] :
+      [{ href: "/incidents", label: "Incidents" }, { href: "/search", label: "Search" }]),
     ...(me?.role === "ADMIN" ? [{ href: "/dashboard", label: "Dashboard" }, { href: "/admin", label: "Admin" }] : []),
   ];
 

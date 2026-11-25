@@ -23,14 +23,14 @@ export async function GET(req: NextRequest, { params }: Context) {
         if (postmortem && record.status !== "RESOLVED") throw new HttpError(409, "Resolve the case before drafting its postmortem");
         const cap = exporting ? null : 100;
         const { rows: signals } = await client.query<Signal>(
-          `SELECT alert_id, title, message, severity, occurred_at, received_at FROM ops.alerts
+          `SELECT alert_id, title, message, severity, occurred_at, received_at, issue_url FROM ops.alerts
            WHERE case_id = $1 ORDER BY received_at DESC LIMIT $2`, [id, cap],
         );
         const { rows: evidence } = await client.query<Evidence>(
           `SELECT evidence_id, summary, recorded_at, author_id, has_restricted FROM ops.evidence
            WHERE case_id = $1 ORDER BY recorded_at DESC LIMIT $2`, [id, cap],
         );
-        const impact = await caseImpact(client, record.service_id, record.environment, record.opened_at);
+        const impact = await caseImpact(client, record.service_id, record.environment, record.opened_at, record.team_id);
         const response = await coordination(client, record);
         await audit(client, record.team_id, user.id, postmortem ? "POSTMORTEM_EXPORTED" : exporting ? "CASE_EXPORTED" : "CASE_VIEWED", id);
         return { case: record, role, signals, evidence, impact, coordination: response };

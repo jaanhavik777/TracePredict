@@ -16,6 +16,10 @@ export async function middleware(req: NextRequest) {
   const user = token ? await verifySession(token) : null;
 
   if (pathname === "/login" && user) {
+    const invite = req.nextUrl.searchParams.get("invite");
+    if (user.role === "CUSTOMER" && invite && /^[a-f0-9]{64}$/.test(invite)) {
+      return NextResponse.redirect(new URL(`/signup?invite=${invite}`, req.url));
+    }
     return NextResponse.redirect(new URL(user.role === "CUSTOMER" ? "/ops" : "/incidents", req.url));
   }
   if (isPublic) return NextResponse.next();

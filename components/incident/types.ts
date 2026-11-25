@@ -1,6 +1,6 @@
 // Shapes returned by the incident API (see API.md). OWNER: Jaanhavi
 import type { Prediction } from "@/ml/contracts";
-export interface Me { userId: number; role: "ADMIN" | "ENGINEER"; fullName: string; email: string }
+export interface Me { userId: number; role: "ADMIN" | "ENGINEER" | "CUSTOMER"; fullName: string; email: string }
 
 export interface Lookups {
   statuses: { status_id: number; status_name: string }[];

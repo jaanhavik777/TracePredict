@@ -100,7 +100,9 @@ export default function Investigation({ id }: { id: string }) {
       <section className="ops-card ops-padded"><h2>Alert timeline</h2>
         <p className="ops-muted">Alerts group by team, service, environment, and category within 15 minutes of the previous signal.</p>
         {report.signals.length ? <ol className="ops-items">{report.signals.map((signal) => <li key={signal.alert_id}>
-          <div><strong>{signal.title}</strong><p>{signal.message}</p><small>{timestamp(signal.occurred_at)}</small></div>
+          <div><strong>{signal.title}</strong><p>{signal.message}</p>
+            {signal.issue_url && <a href={signal.issue_url} target="_blank" rel="noreferrer">Open GitHub issue</a>}
+            <small>{timestamp(signal.occurred_at)}</small></div>
           <span className={`ops-severity ops-severity-${signal.severity}`}>{severityNames[signal.severity]}</span>
         </li>)}</ol> : <p className="ops-muted">No incoming alerts are linked to this case.</p>}
       </section>

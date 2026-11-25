@@ -17,6 +17,9 @@ type WorkspaceData = {
 
 function NewCase({ teams, services }: { teams: Team[]; services: Service[] }) {
   const router = useRouter();
+  const [teamId, setTeam] = useState(teams[0]?.team_id ?? "");
+  const team = teams.find((item) => item.team_id === teamId);
+  const visibleServices = services.filter((service) => team?.customer_workspace ? service.team_id === teamId : !service.team_id);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -41,12 +44,12 @@ function NewCase({ teams, services }: { teams: Team[]; services: Service[] }) {
     <summary>Open a case</summary>
     <form onSubmit={submit} className="ops-form">
       <label className="ops-full">Case title<input name="title" required minLength={3} maxLength={160} /></label>
-      <label>Team<select name="teamId" required>{teams.map((team) => <option value={team.team_id} key={team.team_id}>{team.name}</option>)}</select></label>
-      <label>Service<select name="serviceId" required>{services.map((service) => <option value={service.service_id} key={service.service_id}>{service.service_name}</option>)}</select></label>
+      <label>Team<select name="teamId" value={teamId} onChange={(event) => setTeam(event.target.value)} required>{teams.map((team) => <option value={team.team_id} key={team.team_id}>{team.name}</option>)}</select></label>
+      <label>Service<select name="serviceId" key={teamId} required>{visibleServices.map((service) => <option value={service.service_id} key={service.service_id}>{service.service_name}</option>)}</select></label>
       <label>Environment<select name="environment">{environments.map((value) => <option key={value}>{value}</option>)}</select></label>
       <label>Category<select name="category">{categories.map((value) => <option key={value} value={value}>{pretty(value)}</option>)}</select></label>
       <label>Severity<select name="severity" defaultValue="2">{severityNames.slice(1).map((value, index) => <option key={value} value={index + 1}>{value}</option>)}</select></label>
-      <button className="ops-button ops-primary" disabled={busy}>{busy ? "Opening…" : "Create case"}</button>
+      <button className="ops-button ops-primary" disabled={busy || !visibleServices.length}>{busy ? "Opening…" : "Create case"}</button>
       {error && <p className="error ops-full" role="alert">{error}</p>}
     </form>
   </details>;

@@ -38,9 +38,13 @@ export function impactPaths(services: Service[], dependencies: Dependency[], aff
   return nodes;
 }
 
-export async function caseImpact(client: PoolClient, serviceId: number, environment: string, openedAt: string) {
+export async function caseImpact(client: PoolClient, serviceId: number, environment: string, openedAt: string, teamId: string) {
   const { rows: services } = await client.query<Service>(
-    "SELECT service_id, service_name, criticality FROM services ORDER BY service_id",
+    `SELECT s.service_id, coalesce(ts.name, s.service_name) AS service_name, s.criticality
+     FROM services s JOIN ops.teams t ON t.team_id = $1
+     LEFT JOIN ops.team_services ts ON ts.service_id = s.service_id AND ts.team_id = t.team_id
+     WHERE CASE WHEN t.customer_workspace THEN ts.service_id IS NOT NULL
+       ELSE s.service_name NOT LIKE 'workspace/%' END ORDER BY s.service_id`, [teamId],
   );
   const { rows: dependencies } = await client.query<Dependency>(
     "SELECT service_id, depends_on_service_id FROM service_dependencies ORDER BY service_id, depends_on_service_id",
