@@ -20,7 +20,7 @@ export default function ImpactMap({ nodes, deployments }: { nodes: ImpactNode[];
     <h2>Service impact</h2>
     <p className="ops-muted">Select a service to inspect the dependency path and deployments before this case opened.</p>
     <div className="ops-map">
-      {columns.map(([relation, title]) => <div className="ops-map-column" key={relation}>
+      {columns.map(([relation, title]) => <div className="ops-map-column" key={relation} data-relation={relation}>
         <h3>{title}</h3>
         {nodes.filter((item) => item.relation === relation).map((item) => <button className="ops-node" aria-pressed={item === focus}
           key={item.service_id} onClick={() => setSelected(item)}>

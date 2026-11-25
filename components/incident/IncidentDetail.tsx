@@ -107,7 +107,7 @@ export default function IncidentDetail({
         <h2>Affected services</h2>
         <div className="row">
           {services.map((s) => (
-            <span key={s.service_id} className="badge" style={{ background: s.is_primary ? "var(--pink)" : "var(--seashell)" }}>
+            <span key={s.service_id} className={s.is_primary ? "badge sev-medium" : "badge"}>
               {s.service_name}{s.is_primary ? " (primary)" : ""}
             </span>
           ))}

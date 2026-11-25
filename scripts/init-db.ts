@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import bcrypt from "bcryptjs";
 import { withDemo } from "./ops-demo";
 
-const migrations = ["10_predictions.sql", "11_security_ops.sql", "12_response_ops.sql"];
+const migrations = ["10_predictions.sql", "11_security_ops.sql", "12_response_ops.sql", "13_product_workspaces.sql"];
 
 async function main() {
   loadEnvConfig(process.cwd());

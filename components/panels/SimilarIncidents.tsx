@@ -86,7 +86,7 @@ export default function SimilarIncidents({
       )}
 
       {error && (
-        <p role="alert" className="text-red-600">{error}</p>
+        <p role="alert" className="error">{error}</p>
       )}
 
       {!loading && !error && incidents.length === 0 && (
@@ -100,32 +100,32 @@ export default function SimilarIncidents({
         incidents.map((incident) => (
           <article
             key={incident.incident_id}
-            className="border-b py-3"
+            className="search-result"
           >
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-semibold">
+            <div className="result-heading">
+              <h3>
                 {incident.title}
               </h3>
 
-              <span className="text-sm font-semibold">
+              <span className="badge sev-low">
                 {incident.similarity_pct}% match
               </span>
             </div>
 
-            <p className="muted text-sm">
+            <p className="muted">
               Incident #{incident.incident_id}
             </p>
 
-            <div className="mt-2">
-              <p className="text-sm font-semibold">Root cause</p>
-              <p className="muted text-sm">
+            <div>
+              <strong>Root cause</strong>
+              <p className="muted">
                 {incident.root_cause || "Not available"}
               </p>
             </div>
 
-            <div className="mt-2">
-              <p className="text-sm font-semibold">Resolution</p>
-              <p className="muted text-sm">
+            <div>
+              <strong>Resolution</strong>
+              <p className="muted">
                 {incident.resolution || "Not available"}
               </p>
             </div>

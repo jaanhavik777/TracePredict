@@ -104,22 +104,22 @@ export default function DashboardPage() {
           {
             label: "Open Incidents",
             value: data.kpis.open,
-            color: "#2563eb",
+            color: "var(--signal-blue)",
           },
           {
             label: "Critical Incidents",
             value: data.kpis.critical,
-            color: "#dc2626",
+            color: "var(--pink)",
           },
           {
             label: "Resolved Incidents",
             value: data.kpis.resolved,
-            color: "#16a34a",
+            color: "var(--cream)",
           },
           {
             label: "Avg. Resolution Time",
             value: `${data.kpis.avg_resolution_min} min`,
-            color: "#7c3aed",
+            color: "var(--warm-cream)",
           },
         ].map((kpi) => (
           <section
@@ -163,7 +163,7 @@ export default function DashboardPage() {
                 <td>{service.service_name}</td>
                 <td>{service.incident_count}</td>
                 <td>
-                  <span style={{ color: "#dc2626", fontWeight: 600 }}>
+                  <span style={{ color: "var(--pink)", fontWeight: 600 }}>
                     {service.critical_count}
                   </span>
                 </td>

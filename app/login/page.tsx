@@ -35,10 +35,28 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ maxWidth: 400, paddingTop: 80 }}>
-      <h1>TracePredict</h1>
-      <p className="muted">Sign in to investigate incidents.</p>
-      <form onSubmit={onSubmit} className="card" style={{ display: "grid", gap: 14 }}>
+    <main className="login-shell">
+      <header className="login-intro">
+        <span className="nav-mark" aria-hidden="true" />
+        <h1>TracePredict</h1>
+        <p className="muted">Incident intelligence and security operations</p>
+      </header>
+      <figure className="login-visual">
+        <figcaption><span>Service impact</span><span>Illustrative case</span></figcaption>
+        <div className="login-map">
+          <div className="login-map-node login-map-dependency">
+            <strong>Session store</strong><small>Upstream dependency</small>
+          </div>
+          <div className="login-map-node login-map-affected">
+            <strong>Auth service</strong><small>Affected service</small>
+          </div>
+          <div className="login-map-node login-map-downstream">
+            <strong>Customer portal</strong><small>Downstream at risk</small>
+          </div>
+        </div>
+      </figure>
+      <form onSubmit={onSubmit} className="card login-form">
+        <h2>Sign in</h2>
         <label>
           Email
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
@@ -50,8 +68,8 @@ export default function LoginPage() {
                  autoComplete="current-password" />
         </label>
         {error && <p role="alert" className="error">{error}</p>}
-        <button type="submit" disabled={busy} className="btn">
-          {busy ? "Signing in..." : "Sign in"}
+        <button type="submit" disabled={busy} className="btn login-submit">
+          {busy ? "Signing in…" : "Sign in"}<span aria-hidden="true">↗</span>
         </button>
       </form>
     </main>

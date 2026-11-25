@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { query } from "@/lib/db";
 import { handleError, setSessionCookie, signSession, verifyPassword, type Role } from "@/lib/auth";
+import { deploymentMode, limitAuth } from "@/lib/product";
 
 const LoginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z.string().min(1).max(100),
 });
 
 // Compared against when the email is unknown, so response time doesn't reveal which emails exist.
@@ -23,6 +24,7 @@ interface UserRow {
 export async function POST(req: NextRequest) {
   try {
     const body = LoginSchema.parse(await req.json().catch(() => ({})));
+    if (deploymentMode()) await limitAuth(req, "login", 40);
 
     const rows = await query<UserRow>(
       `SELECT u.user_id, u.full_name, u.email, u.password_hash, u.is_active, r.role_name

@@ -73,45 +73,45 @@ export default function DependencyPanel({
   }, [incidentId]);
 
   return (
-    <section className="card rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-5 text-lg font-bold">Service Dependencies</h2>
+    <section className="card">
+      <h2>Service Dependencies</h2>
 
       {loading && (
-        <p className="text-sm text-slate-500">Loading dependencies...</p>
+        <p className="muted">Loading dependencies...</p>
       )}
 
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="error">{error}</p>
       )}
 
       {!loading && !error && (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid2">
 
           {/* Upstream Services */}
           <div>
-            <h3 className="mb-3 font-semibold text-indigo-700">
+            <h3 className="panel-label">
               Upstream Services
             </h3>
 
-            <p className="mb-3 text-xs text-slate-500">
+            <p className="muted">
               Services that this incident's services depend on.
             </p>
 
             {dependencies.upstream.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="muted">
                 No upstream dependencies found.
               </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="panel-list">
                 {dependencies.upstream.map((service) => (
                   <li
                     key={service.service_id}
-                    className="rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm"
+                    className="upstream-node"
                   >
-                    <span className="font-medium">
+                    <span>
                       {service.service_name}
                     </span>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="muted">
                       ID: {service.service_id}
                     </span>
                   </li>
@@ -122,29 +122,29 @@ export default function DependencyPanel({
 
           {/* Downstream Services */}
           <div>
-            <h3 className="mb-3 font-semibold text-emerald-700">
+            <h3 className="panel-label downstream">
               Downstream Services
             </h3>
 
-            <p className="mb-3 text-xs text-slate-500">
+            <p className="muted">
               Services that depend on this incident's services.
             </p>
 
             {dependencies.downstream.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="muted">
                 No downstream dependencies found.
               </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="panel-list">
                 {dependencies.downstream.map((service) => (
                   <li
                     key={service.service_id}
-                    className="rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-sm"
+                    className="downstream-node"
                   >
-                    <span className="font-medium">
+                    <span>
                       {service.service_name}
                     </span>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="muted">
                       ID: {service.service_id}
                     </span>
                   </li>

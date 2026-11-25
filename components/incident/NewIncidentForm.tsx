@@ -76,7 +76,7 @@ export default function NewIncidentForm({ lookups }: { lookups: Lookups }) {
           {lookups.severities.map((s) => <option key={s.severity_id} value={s.severity_id}>{s.severity_name}</option>)}
         </select>
       </label>
-      <fieldset style={{ border: "1.5px solid var(--blue)", borderRadius: 8 }}>
+      <fieldset>
         <legend>Affected services (pick the primary one with the radio button)</legend>
         <div className="grid2">
           {lookups.services.map((s) => (

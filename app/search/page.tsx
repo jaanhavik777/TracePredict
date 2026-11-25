@@ -53,27 +53,27 @@ export default function Page() {
   }
 
   return (
-    <main className="space-y-6">
-      <section className="card">
-        <h1>Semantic Search</h1>
+    <main>
+      <section className="card search-console">
+        <h1>Semantic search</h1>
         <p className="muted">
           Search historical incidents using their meaning, symptoms,
           root causes, and resolutions.
         </p>
 
-        <form onSubmit={handleSearch} className="mt-4 space-y-3">
+        <form onSubmit={handleSearch} className="search-controls">
           <input
             type="text"
+            aria-label="Incident description"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Describe the incident you're looking for..."
-            className="w-full rounded-lg border p-3"
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg px-5 py-2 font-semibold disabled:opacity-50"
+            className="btn"
           >
             {loading ? "Searching..." : "Search incidents"}
           </button>
@@ -85,7 +85,7 @@ export default function Page() {
       )}
 
       {error && (
-        <p role="alert" className="text-red-600">
+        <p role="alert" className="error">
           {error}
         </p>
       )}
@@ -97,44 +97,43 @@ export default function Page() {
       )}
 
       {!loading && results.length > 0 && (
-        <section className="card space-y-4">
+        <section className="card">
           <h2>Search results ({results.length})</h2>
 
           {results.map((incident) => (
             <article
               key={incident.incident_id}
-              className="border-b py-4 last:border-b-0"
+              className="search-result"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="font-semibold">
+              <div className="result-heading">
+                <h3>
                   <a
                     href={`/incidents/${incident.incident_id}`}
-                    className="underline"
                   >
                     {incident.title}
                   </a>
                 </h3>
 
-                <span className="rounded-full border px-3 py-1 text-sm font-semibold">
+                <span className="badge sev-low">
                   {incident.similarity_pct}% match
                 </span>
               </div>
 
-              <p className="muted mt-1 text-sm">
+              <p className="panel-label">
                 Incident #{incident.incident_id}
               </p>
 
-              <div className="mt-3 space-y-2">
+              <div className="grid2">
                 <div>
-                  <p className="font-semibold text-sm">Root cause</p>
-                  <p className="muted text-sm">
+                  <strong>Root cause</strong>
+                  <p className="muted">
                     {incident.root_cause || "Not available"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-sm">Resolution</p>
-                  <p className="muted text-sm">
+                  <strong>Resolution</strong>
+                  <p className="muted">
                     {incident.resolution || "Not available"}
                   </p>
                 </div>

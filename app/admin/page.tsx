@@ -275,28 +275,22 @@ export default function AdminPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 text-slate-900">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
-            TracePredict Administration
-          </p>
-          <h1 className="mt-2 text-3xl font-bold">Admin Dashboard</h1>
-          <p className="mt-2 text-slate-500">
+    <main className="admin-shell">
+      <div>
+        <header className="admin-header">
+          <h1>Administration</h1>
+          <p className="muted">
             Manage users, services and service dependencies.
           </p>
         </header>
 
-        <nav className="mb-6 flex flex-wrap gap-2 border-b border-slate-200">
+        <nav className="admin-tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`border-b-2 px-5 py-3 text-sm font-semibold ${
-                activeTab === tab.id
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
-              }`}
+              className="btn btn-blue"
+              aria-pressed={activeTab === tab.id}
             >
               {tab.label}
             </button>
@@ -304,29 +298,29 @@ export default function AdminPage() {
         </nav>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div className="card error">
             {error}
           </div>
         )}
 
         {message && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          <div className="card success">
             {message}
           </div>
         )}
 
         {loading && (
-          <p className="mb-4 text-sm text-slate-500">Loading data...</p>
+          <p className="muted">Loading data...</p>
         )}
 
         {activeTab === "users" && (
-          <section className="grid gap-6 lg:grid-cols-[350px_1fr]">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-lg font-bold">Create User</h2>
+          <section className="admin-columns">
+            <div className="card">
+              <h2>Create User</h2>
 
-              <form onSubmit={createUser} className="space-y-4">
+              <form onSubmit={createUser} className="admin-form">
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
+                  <label>
                     Full name
                   </label>
                   <input
@@ -336,13 +330,13 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, full_name: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 p-2"
+                    
                     placeholder="Enter full name"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
+                  <label>
                     Email
                   </label>
                   <input
@@ -353,13 +347,13 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, email: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 p-2"
+                    
                     placeholder="name@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
+                  <label>
                     Password
                   </label>
                   <input
@@ -370,13 +364,13 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, password: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 p-2"
+                    
                     placeholder="At least 8 characters"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
+                  <label>
                     Role
                   </label>
                   <select
@@ -384,7 +378,6 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setUserForm({ ...userForm, role_id: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 p-2"
                   >
                     <option value="2">Engineer</option>
                     <option value="1">Admin</option>
@@ -393,55 +386,55 @@ export default function AdminPage() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700"
+                  className="btn"
                 >
                   Create User
                 </button>
               </form>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b p-5">
-                <h2 className="text-lg font-bold">User Management</h2>
-                <span className="text-sm text-slate-500">
+            <div className="card">
+              <div className="admin-section-head">
+                <h2>User Management</h2>
+                <span className="muted">
                   {users.length} users
                 </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
+              <div className="table-scroll">
+                <table className="table">
+                  <thead>
                     <tr>
-                      <th className="p-4">Name</th>
-                      <th className="p-4">Email</th>
-                      <th className="p-4">Role</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4">Action</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user) => (
-                      <tr key={user.user_id} className="border-t">
-                        <td className="p-4 font-medium">{user.full_name}</td>
-                        <td className="p-4">{user.email}</td>
-                        <td className="p-4">
+                      <tr key={user.user_id}>
+                        <td>{user.full_name}</td>
+                        <td>{user.email}</td>
+                        <td>
                           {user.role_id === 1 ? "Admin" : "Engineer"}
                         </td>
-                        <td className="p-4">
+                        <td>
                           <span
-                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                            className={`badge ${
                               user.is_active
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "sev-low"
+                                : "sev-critical"
                             }`}
                           >
                             {user.is_active ? "Active" : "Inactive"}
                           </span>
                         </td>
-                        <td className="p-4">
+                        <td>
                           <button
                             onClick={() => toggleUser(user)}
-                            className="font-semibold text-indigo-600 hover:underline"
+                            className="btn btn-blue btn-sm"
                           >
                             {user.is_active ? "Deactivate" : "Activate"}
                           </button>
@@ -451,7 +444,7 @@ export default function AdminPage() {
 
                     {users.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="p-6 text-center text-slate-500">
+                        <td colSpan={5} className="muted">
                           No users found.
                         </td>
                       </tr>
@@ -464,18 +457,18 @@ export default function AdminPage() {
         )}
 
         {activeTab === "services" && (
-  <section className="space-y-6">
+  <section>
 
     {/* Create / Edit Service Form */}
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-5 text-lg font-bold">
+    <div className="card">
+      <h2>
         {editingService !== null ? "Edit Service" : "Create Service"}
       </h2>
 
-      <form onSubmit={saveService} className="grid gap-4 md:grid-cols-2">
+      <form onSubmit={saveService} className="admin-form grid2">
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Service Name
           </label>
           <input
@@ -488,13 +481,13 @@ export default function AdminPage() {
                 service_name: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
+            
             placeholder="Enter service name"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Criticality
           </label>
           <select
@@ -505,7 +498,6 @@ export default function AdminPage() {
                 criticality: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -515,7 +507,7 @@ export default function AdminPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Service Status
           </label>
           <select
@@ -526,7 +518,6 @@ export default function AdminPage() {
                 service_status: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
           >
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
@@ -534,7 +525,7 @@ export default function AdminPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Owner ID (optional)
           </label>
           <input
@@ -547,13 +538,13 @@ export default function AdminPage() {
                 owner_id: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
+            
             placeholder="Enter owner user ID"
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium">
+        <div className="form-span">
+          <label>
             Description
           </label>
           <textarea
@@ -565,15 +556,15 @@ export default function AdminPage() {
               })
             }
             rows={3}
-            className="w-full rounded-lg border border-slate-300 p-2"
+            
             placeholder="Describe the service..."
           />
         </div>
 
-        <div className="flex gap-3 md:col-span-2">
+        <div className="row form-span">
           <button
             type="submit"
-            className="rounded-lg bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700"
+            className="btn"
           >
             {editingService !== null ? "Update Service" : "Create Service"}
           </button>
@@ -591,7 +582,7 @@ export default function AdminPage() {
                   owner_id: "",
                 });
               }}
-              className="rounded-lg border border-slate-300 px-5 py-2"
+              className="btn btn-blue"
             >
               Cancel
             </button>
@@ -601,68 +592,68 @@ export default function AdminPage() {
     </div>
 
     {/* Service List */}
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b p-5">
-        <h2 className="text-lg font-bold">Service Management</h2>
-        <span className="text-sm text-slate-500">
+    <div className="card">
+      <div className="admin-section-head">
+        <h2>Service Management</h2>
+        <span className="muted">
           {services.length} services
         </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-600">
+      <div className="table-scroll">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="p-4">Service ID</th>
-              <th className="p-4">Service Name</th>
-              <th className="p-4">Description</th>
-              <th className="p-4">Criticality</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Owner ID</th>
-              <th className="p-4">Action</th>
+              <th>Service ID</th>
+              <th>Service Name</th>
+              <th>Description</th>
+              <th>Criticality</th>
+              <th>Status</th>
+              <th>Owner ID</th>
+              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {services.map((service) => (
-              <tr key={service.service_id} className="border-t">
-                <td className="p-4">{service.service_id}</td>
+              <tr key={service.service_id}>
+                <td>{service.service_id}</td>
 
-                <td className="p-4 font-medium">
+                <td>
                   {service.service_name}
                 </td>
 
-                <td className="p-4">
+                <td>
                   {service.description || "—"}
                 </td>
 
-                <td className="p-4">
-                  <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-700">
+                <td>
+                  <span className="badge sev-high">
                     {service.criticality}
                   </span>
                 </td>
 
-                <td className="p-4">
+                <td>
                   <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                    className={`badge ${
                       service.service_status === "ACTIVE"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? "sev-low"
+                        : "sev-critical"
                     }`}
                   >
                     {service.service_status}
                   </span>
                 </td>
 
-                <td className="p-4">
+                <td>
                   {service.owner_id ?? "—"}
                 </td>
 
-                <td className="p-4">
+                <td>
                   <button
                     type="button"
                     onClick={() => editService(service)}
-                    className="font-semibold text-indigo-600 hover:underline"
+                    className="btn btn-blue btn-sm"
                   >
                     Edit
                   </button>
@@ -674,7 +665,7 @@ export default function AdminPage() {
               <tr>
                 <td
                   colSpan={7}
-                  className="p-6 text-center text-slate-500"
+                  className="muted"
                 >
                   No services found.
                 </td>
@@ -688,16 +679,16 @@ export default function AdminPage() {
 )}
 
         {activeTab === "dependencies" && (
-  <section className="space-y-6">
+  <section>
 
     {/* Add Dependency */}
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-5 text-lg font-bold">Add Service Dependency</h2>
+    <div className="card">
+      <h2>Add Service Dependency</h2>
 
-      <form onSubmit={addDependency} className="grid gap-4 md:grid-cols-2">
+      <form onSubmit={addDependency} className="admin-form grid2">
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Service
           </label>
           <select
@@ -709,7 +700,6 @@ export default function AdminPage() {
                 serviceId: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
           >
             <option value="">Select a service</option>
             {services.map((service) => (
@@ -724,7 +714,7 @@ export default function AdminPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label>
             Depends On
           </label>
           <select
@@ -736,7 +726,6 @@ export default function AdminPage() {
                 dependsOnServiceId: e.target.value,
               })
             }
-            className="w-full rounded-lg border border-slate-300 p-2"
           >
             <option value="">Select a dependency</option>
             {services.map((service) => (
@@ -750,14 +739,14 @@ export default function AdminPage() {
           </select>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="form-span">
           <button
             type="submit"
             disabled={
               !dependencyForm.serviceId ||
               !dependencyForm.dependsOnServiceId
             }
-            className="rounded-lg bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="btn"
           >
             Add Dependency
           </button>
@@ -766,51 +755,51 @@ export default function AdminPage() {
     </div>
 
     {/* Dependency List */}
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b p-5">
-        <h2 className="text-lg font-bold">Service Dependencies</h2>
-        <span className="text-sm text-slate-500">
+    <div className="card">
+      <div className="admin-section-head">
+        <h2>Service Dependencies</h2>
+        <span className="muted">
           {dependencies.length} dependencies
         </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-600">
+      <div className="table-scroll">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="p-4">Dependency ID</th>
-              <th className="p-4">Service</th>
-              <th className="p-4">Depends On</th>
-              <th className="p-4">Relationship</th>
-              <th className="p-4">Action</th>
+              <th>Dependency ID</th>
+              <th>Service</th>
+              <th>Depends On</th>
+              <th>Relationship</th>
+              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {dependencies.map((dependency) => (
-              <tr key={dependency.dependency_id} className="border-t">
-                <td className="p-4">{dependency.dependency_id}</td>
+              <tr key={dependency.dependency_id}>
+                <td>{dependency.dependency_id}</td>
 
-                <td className="p-4 font-medium">
+                <td>
                   {dependency.service_name}
                 </td>
 
-                <td className="p-4">
+                <td>
                   {dependency.depends_on_service_name}
                 </td>
 
-                <td className="p-4 font-semibold text-indigo-600">
+                <td>
                   {dependency.service_name} →{" "}
                   {dependency.depends_on_service_name}
                 </td>
 
-                <td className="p-4">
+                <td>
                   <button
                     type="button"
                     onClick={() =>
                       deleteDependency(dependency.dependency_id)
                     }
-                    className="font-semibold text-red-600 hover:underline"
+                    className="btn btn-blue btn-sm danger"
                   >
                     Delete
                   </button>
@@ -822,7 +811,7 @@ export default function AdminPage() {
               <tr>
                 <td
                   colSpan={5}
-                  className="p-6 text-center text-slate-500"
+                  className="muted"
                 >
                   No dependencies found.
                 </td>

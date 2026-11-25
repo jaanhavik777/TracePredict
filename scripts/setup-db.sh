@@ -26,7 +26,8 @@ for f in \
   sql/05_jaanhavi_seed_incidents.sql \
   sql/10_predictions.sql \
   sql/11_security_ops.sql \
-  sql/12_response_ops.sql
+  sql/12_response_ops.sql \
+  sql/13_product_workspaces.sql
 do
   run_sql "$f"
 done

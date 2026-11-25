@@ -62,43 +62,43 @@ export default function RecentDeployments({
   }, [incidentId]);
 
   return (
-    <section className="card rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-lg font-bold">Recent Deployments</h2>
+    <section className="card">
+      <h2>Recent Deployments</h2>
 
-      {loading && <p className="text-sm text-slate-500">Loading deployments...</p>}
+      {loading && <p className="muted">Loading deployments...</p>}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       {!loading && !error && deployments.length === 0 && (
-        <p className="text-sm text-slate-500">
+        <p className="muted">
           No deployments found in the 7 days before this incident.
         </p>
       )}
 
-      {!loading && !error && deployments.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600">
+      {!loading && !error && deployments.length> 0 && (
+        <div className="table-scroll">
+          <table className="table">
+            <thead>
               <tr>
-                <th className="p-3">Version</th>
-                <th className="p-3">Deployed At</th>
-                <th className="p-3">Hours Before Incident</th>
-                <th className="p-3">Status</th>
+                <th>Version</th>
+                <th>Deployed At</th>
+                <th>Hours Before Incident</th>
+                <th>Status</th>
               </tr>
             </thead>
 
             <tbody>
               {deployments.map((deployment) => (
-                <tr key={deployment.deployment_id} className="border-t">
-                  <td className="p-3 font-medium">{deployment.version}</td>
-                  <td className="p-3">
+                <tr key={deployment.deployment_id}>
+                  <td>{deployment.version}</td>
+                  <td>
                     {new Date(deployment.deployed_at).toLocaleString()}
                   </td>
-                  <td className="p-3">
+                  <td>
                     {deployment.hours_before_incident} hours
                   </td>
-                  <td className="p-3">
-                    <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
+                  <td>
+                    <span className="badge status">
                       {deployment.status}
                     </span>
                   </td>

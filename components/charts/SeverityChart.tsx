@@ -5,10 +5,10 @@ type SeverityItem = {
 };
 
 const severityColors: Record<string, string> = {
-  LOW: "#16a34a",
-  MEDIUM: "#eab308",
-  HIGH: "#f97316",
-  CRITICAL: "#dc2626",
+  LOW: "var(--cream)",
+  MEDIUM: "var(--signal-blue)",
+  HIGH: "var(--warm-cream)",
+  CRITICAL: "var(--pink)",
 };
 
 export default function SeverityChart({
@@ -41,14 +41,14 @@ export default function SeverityChart({
 
             <div style={{
               height: 13,
-              background: "#e5e7eb",
+              background: "var(--surface-raised)",
               borderRadius: 20,
               overflow: "hidden",
             }}>
               <div style={{
                 width: `${(item.count / maxCount) * 100}%`,
                 height: "100%",
-                background: severityColors[item.severity] || "#64748b",
+                background: severityColors[item.severity] || "var(--ink-soft)",
                 borderRadius: 20,
               }} />
             </div>

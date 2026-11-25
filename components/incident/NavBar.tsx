@@ -33,9 +33,10 @@ export default function NavBar() {
 
   return (
     <nav className="nav">
-      <strong>TracePredict</strong>
+      <strong className="nav-brand"><span className="nav-mark" aria-hidden="true" />TracePredict</strong>
       {links.map((l) => (
-        <Link key={l.href} href={l.href} className={pathname.startsWith(l.href) ? "active" : ""}>
+        <Link key={l.href} href={l.href} className={pathname.startsWith(l.href) ? "active" : ""}
+          aria-current={pathname.startsWith(l.href) ? "page" : undefined}>
           {l.label}
         </Link>
       ))}

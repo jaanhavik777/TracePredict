@@ -2,7 +2,7 @@
 // Used by both lib/auth.ts (route handlers) and middleware.ts (Edge runtime).
 import { SignJWT, jwtVerify } from "jose";
 
-export type Role = "ADMIN" | "ENGINEER";
+export type Role = "ADMIN" | "ENGINEER" | "CUSTOMER";
 
 export interface SessionUser {
   userId: number;
@@ -35,7 +35,7 @@ export async function verifySession(token: string): Promise<SessionUser | null> 
   try {
     const { payload } = await jwtVerify(token, secretKey(), { algorithms: ["HS256"] });
     const { userId, role, fullName, email } = payload as Record<string, unknown>;
-    if (typeof userId !== "number" || (role !== "ADMIN" && role !== "ENGINEER")) return null;
+    if (typeof userId !== "number" || (role !== "ADMIN" && role !== "ENGINEER" && role !== "CUSTOMER")) return null;
     return { userId, role, fullName: String(fullName), email: String(email) };
   } catch {
     return null;

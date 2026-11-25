@@ -73,11 +73,27 @@ export default function Workspace() {
   }, [filters, revision]);
 
   const auditAccess = data?.teams.some((team) => team.role !== "RESPONDER") || data?.admin;
+  const featured = data?.cases[0];
   return <main className="ops-main">
     <header className="ops-hero">
-      <div><p className="ops-kicker">TracePredict / Operations</p><h1>Security operations</h1>
-        <p>Investigate grouped alerts, assess service impact, and manage restricted evidence.</p></div>
-      <div className="ops-hero-status"><span /> Team-scoped access</div>
+      <div className="ops-hero-copy">
+        <h1>Security<br />operations</h1>
+        <p>Investigate grouped alerts, trace service impact, and review restricted evidence.</p>
+      </div>
+      <section className="ops-viewfinder" aria-label="Case preview">
+        <span className="ops-viewfinder-label">Case preview</span>
+        {featured && !loading && !error ? <>
+          <Link className="ops-tracked-case" href={`/ops/cases/${featured.case_id}`}>
+            <span className={`ops-severity ops-severity-${featured.severity}`}>{severityNames[featured.severity]}</span>
+            <strong>{featured.title}</strong>
+            <small>{featured.service_name} / {featured.environment}</small>
+          </Link>
+          <div className="ops-viewfinder-meta">
+            <span>{pretty(featured.status)}</span>
+            <span>{featured.alert_count} {featured.alert_count === 1 ? "signal" : "signals"}</span>
+          </div>
+        </> : <p className="ops-viewfinder-empty">{loading ? "Loading cases…" : error ? "Case preview unavailable" : "No cases in this view"}</p>}
+      </section>
     </header>
     <nav className="ops-tabs" aria-label="Security workspace">
       <button aria-pressed={tab === "cases"} onClick={() => setTab("cases")}>Cases & alerts</button>

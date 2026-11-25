@@ -57,7 +57,7 @@ export default function WeeklyTrendChart({
                   y1={y}
                   x2={width - padding}
                   y2={y}
-                  stroke="#d1d5db"
+                  stroke="var(--line)"
                   strokeDasharray="4 4"
                 />
               );
@@ -66,7 +66,7 @@ export default function WeeklyTrendChart({
             <path
               d={path}
               fill="none"
-              stroke="#4f46e5"
+              stroke="var(--signal-blue)"
               strokeWidth="3"
               strokeLinejoin="round"
               strokeLinecap="round"
@@ -78,7 +78,7 @@ export default function WeeklyTrendChart({
                   cx={point.x}
                   cy={point.y}
                   r="5"
-                  fill="#4f46e5"
+                  fill="var(--signal-blue)"
                 />
 
                 <text
