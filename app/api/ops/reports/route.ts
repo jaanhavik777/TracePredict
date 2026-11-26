@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { AuthError, HttpError, handleError } from "@/lib/auth";
 import { actor, audit, jsonBody, resourceId, teamRole, workspace } from "@/lib/ops/access";
 import { query, withTransaction } from "@/lib/db";
+import { maintainInlineQueue, processInlineDelivery, usesInlineWorker } from "@/lib/ops/inline-worker";
 
 export async function GET(req: NextRequest) {
   try {
     const user = await actor(req);
     const selection = req.nextUrl.searchParams.get("team");
     const team = selection ? resourceId(selection) : null;
+    await maintainInlineQueue();
     const result = await workspace(user.id, async (client) => {
       if (team) await teamRole(client, team);
       const { rows: [reliability] } = await client.query(
@@ -64,7 +66,7 @@ export async function GET(req: NextRequest) {
     const heartbeat = user.admin
       ? (await query("SELECT last_seen_at FROM ops.worker_health WHERE worker = 'operations'"))[0]?.last_seen_at ?? null
       : null;
-    return NextResponse.json({ ...result, heartbeat }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ ...result, heartbeat, workerMode: usesInlineWorker() ? "inline" : "background" }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     return handleError(error);
   }
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
       if (!delivery) throw new HttpError(404, "Failed delivery not found");
       await audit(client, delivery.team_id, user.id, "DELIVERY_REQUEUED", id);
     });
+    await processInlineDelivery(id);
     return NextResponse.json({ queued: true });
   } catch (error) {
     return handleError(error);

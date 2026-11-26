@@ -4,6 +4,8 @@ TracePredict combines incident reporting, predictive triage, investigation, and 
 
 **Security Ops** adds a team-scoped security case queue fed by signed alert webhooks. It includes alert correlation, an interactive service impact map, restricted evidence, and a searchable audit log. [Open the Security Ops setup and demo guide](docs/security-ops.md).
 
+The hosted product adds workspace registration, teammate invitations, and GitHub Issues or signed webhook connections. [Configure integrations and deploy on Render](docs/hosted-product.md).
+
 ## Run locally
 
 Use Node.js 20+, Docker Desktop or a PostgreSQL database with pgvector, and npm. The following commands work in PowerShell.

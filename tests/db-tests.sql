@@ -34,7 +34,7 @@ END $$ LANGUAGE plpgsql;
 -- ---------- structure ----------
 SELECT pg_temp.expect_value('T-DB-01', 'schema has 15 tables', '15',
   (SELECT count(*)::text FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'));
-SELECT pg_temp.expect_value('T-DB-02', 'two roles exist: ADMIN and ENGINEER', 'ADMIN,ENGINEER',
+SELECT pg_temp.expect_value('T-DB-02', 'platform and workspace roles exist', 'ADMIN,CUSTOMER,ENGINEER',
   (SELECT string_agg(role_name, ',' ORDER BY role_name) FROM roles));
 SELECT pg_temp.expect_value('T-DB-03', 'pgvector extension is installed', 'vector',
   (SELECT extname FROM pg_extension WHERE extname = 'vector'));

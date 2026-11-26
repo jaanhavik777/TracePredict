@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: tracepredict-web
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run db:deploy && npm start -- --hostname 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: TRACEPREDICT_HOSTED
+        value: "1"
+      - key: TRACEPREDICT_WORKER_MODE
+        value: inline
+      - key: TRACEPREDICT_SIGNUP
+        value: "enabled"
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: TRACEPREDICT_WEBHOOK_SECRET
+        generateValue: true
+      - key: TRACEPREDICT_EVIDENCE_KEY
+        generateValue: true

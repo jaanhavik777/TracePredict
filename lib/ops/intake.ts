@@ -5,6 +5,7 @@ import { withTransaction } from "@/lib/db";
 import { alertInput } from "./contracts";
 import { redactSummary } from "./redaction";
 import { alertHash } from "./webhook";
+import { processInlineDelivery } from "./inline-worker";
 
 type Alert = z.infer<typeof alertInput>;
 type Source = { team_id: string; provider: string; service_id: number | null; repository: string | null };
@@ -13,7 +14,7 @@ export async function acceptDelivery(
   sourceId: string, provider: "signed" | "github",
   build: (source: Source) => { alert: Alert; group?: string; issueUrl?: string } | null,
 ) {
-  return withTransaction(async (client) => {
+  const result = await withTransaction(async (client) => {
     const { rows: [source] } = await client.query<Source>(
       "SELECT team_id, provider, service_id, repository FROM ops.sources WHERE source_id = $1 AND enabled FOR UPDATE", [sourceId],
     );
@@ -58,4 +59,6 @@ export async function acceptDelivery(
     );
     return { deliveryId, caseId: null, duplicate: false };
   });
+  if (result.deliveryId && !result.caseId) await processInlineDelivery(result.deliveryId);
+  return result;
 }

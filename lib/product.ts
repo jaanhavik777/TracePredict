@@ -8,8 +8,9 @@ export const deploymentMode = () => process.env.TRACEPREDICT_HOSTED === "1";
 export const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 
 export async function limitAuth(req: Request, scope: "signup" | "login", max: number) {
-  // Hosted ingress replaces the header before forwarding. Local installations keep a shared bucket.
-  const ip = deploymentMode() ? req.headers.get("x-trace-client")?.slice(0, 64) ?? "unknown" : "local";
+  // Use the proxy-appended hop. The public ingress is the only route to the hosted app.
+  const forwarded = req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  const ip = deploymentMode() ? forwarded?.slice(0, 64) || "unknown" : "local";
   const key = digest(ip);
   const [record] = await query<{ attempts: number }>(
     `INSERT INTO ops.auth_limits (scope, subject, window_start) VALUES ($1, $2, date_trunc('hour', now()))

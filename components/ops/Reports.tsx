@@ -15,6 +15,7 @@ type Report = {
   followups: { followup_id: string; case_id: string; title: string; case_title: string; due_on: string }[];
   escalated: { case_id: string; title: string; severity: number; ack_due_at: string }[];
   heartbeat: string | null;
+  workerMode: "inline" | "background";
 };
 
 export default function Reports({ teams, admin }: { teams: Team[]; admin: boolean }) {
@@ -51,8 +52,8 @@ export default function Reports({ teams, admin }: { teams: Team[]; admin: boolea
       <h2>Operations reporting</h2>
       <p className="ops-muted">Thirty-day activity, current delivery backlog, and overdue response work.</p>
       {admin && data && <p className="ops-muted">
-        Worker heartbeat {data.heartbeat ? timestamp(data.heartbeat) : "unavailable"}
-        {(!data.heartbeat || Date.now() - Date.parse(data.heartbeat) > 30_000) && " · Check worker process"}
+        {data.workerMode === "inline" ? "Last request-triggered check" : "Worker heartbeat"} {data.heartbeat ? timestamp(data.heartbeat) : "unavailable"}
+        {data.workerMode === "background" && (!data.heartbeat || Date.now() - Date.parse(data.heartbeat) > 30_000) && " · Check worker process"}
       </p>}
       <div className="ops-form">
         <label>Team<select value={team} onChange={(event) => setTeam(event.target.value)}>

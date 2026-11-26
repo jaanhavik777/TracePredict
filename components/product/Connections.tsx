@@ -7,7 +7,7 @@ import type { Team } from "@/lib/ops/contracts";
 type Service = { team_id: string; service_id: number; name: string };
 type Source = { source_id: string; team_id: string; name: string; provider: "signed" | "github"; enabled: boolean; repository: string | null; service_id: number; last_delivery: string | null };
 type Data = { teams: Team[]; services: Service[]; connections: Source[] };
-type Result = { path?: string; key?: string; invitePath?: string; deliveryId?: string };
+type Result = { path?: string; key?: string; invitePath?: string; deliveryId?: string; serviceId?: number };
 
 export default function Connections() {
   const [data, setData] = useState<Data>();
@@ -76,6 +76,7 @@ export default function Connections() {
           <p className="muted">Copy the signing secret now. The workspace won’t display it again.</p>
           <label>Webhook URL<input readOnly value={window.location.origin + result.path} onFocus={(event) => event.target.select()} /></label>
           <label>Signing secret<input readOnly value={result.key} onFocus={(event) => event.target.select()} /></label>
+          {result.serviceId && <p>Use <code>{result.serviceId}</code> as the <code>serviceId</code> in signed JSON deliveries.</p>}
         </>}
         {result.invitePath && <label>Share this link privately<input readOnly value={window.location.origin + result.invitePath} onFocus={(event) => event.target.select()} /></label>}
       </section>}

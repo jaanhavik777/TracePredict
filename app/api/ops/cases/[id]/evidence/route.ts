@@ -5,6 +5,7 @@ import { actor, audit, auditDenied, jsonBody, loadCase, loadWritableCase, requir
 import { evidenceInput } from "@/lib/ops/contracts";
 import { caseEvent } from "@/lib/ops/coordination";
 import { redactSummary } from "@/lib/ops/redaction";
+import { protectEvidence, revealEvidence } from "@/lib/ops/evidence-crypto";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest, { params }: Context) {
       );
       if (body.restricted) {
         await client.query("INSERT INTO ops.restricted_evidence (evidence_id, team_id, detail) VALUES ($1, $2, $3)",
-          [evidenceId, record.team_id, body.restricted]);
+          [evidenceId, record.team_id, protectEvidence(body.restricted, record.team_id, evidenceId)]);
       }
       await audit(client, record.team_id, user.id, "EVIDENCE_ADDED", evidenceId);
       await caseEvent(client, record, user.id, "EVIDENCE_ADDED", "Evidence summary added");
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest, { params }: Context) {
         );
         if (!result) throw new HttpError(404, "Restricted evidence not found");
         await audit(client, record.team_id, user.id, "RESTRICTED_EVIDENCE_VIEWED", evidenceId);
-        return result;
+        return { detail: revealEvidence(result.detail, record.team_id, evidenceId) };
       });
       return NextResponse.json(restricted, { headers: { "Cache-Control": "no-store" } });
     } catch (error) {

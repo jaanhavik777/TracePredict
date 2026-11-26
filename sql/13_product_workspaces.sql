@@ -44,6 +44,9 @@ ALTER TABLE ops.deliveries ADD COLUMN IF NOT EXISTS source_group TEXT;
 ALTER TABLE ops.alerts ADD COLUMN IF NOT EXISTS issue_url TEXT;
 GRANT SELECT (issue_url) ON ops.alerts TO tracepredict_ops;
 
+ALTER TABLE ops.restricted_evidence DROP CONSTRAINT IF EXISTS restricted_evidence_detail_check;
+ALTER TABLE ops.restricted_evidence ADD CONSTRAINT restricted_evidence_detail_check CHECK (length(detail) BETWEEN 1 AND 22000);
+
 CREATE OR REPLACE FUNCTION ops.validate_case_service() RETURNS TRIGGER LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = pg_catalog AS $$
 BEGIN

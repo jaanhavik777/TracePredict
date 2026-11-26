@@ -5,6 +5,7 @@ import { handleError } from "@/lib/auth";
 import { actor, audit, jsonBody, requireWrite, teamRole, workspace } from "@/lib/ops/access";
 import { caseInput, states, type CaseListItem, type Team, type Service } from "@/lib/ops/contracts";
 import { caseEvent } from "@/lib/ops/coordination";
+import { maintainInlineQueue } from "@/lib/ops/inline-worker";
 import { redactSummary } from "@/lib/ops/redaction";
 
 const filters = z.object({
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await actor(req);
     const filter = filters.parse(Object.fromEntries(req.nextUrl.searchParams));
+    await maintainInlineQueue();
     const result = await workspace(user.id, async (client) => {
       if (filter.teamId) await teamRole(client, filter.teamId);
       const { rows: teams } = await client.query<Team>(

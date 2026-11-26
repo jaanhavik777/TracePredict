@@ -60,6 +60,7 @@ jobs:
           docker exec -i "${{ job.services.db.id }}" psql -U tracevault -d tracevault -v ON_ERROR_STOP=1 < tests/db-tests.sql
           node tests/api.test.mjs
           npm run ops:test:api
+          npm run product:test
       - name: Print service logs on failure
         if: failure()
         run: |

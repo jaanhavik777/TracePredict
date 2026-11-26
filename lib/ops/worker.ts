@@ -50,12 +50,15 @@ async function processAlert(client: PoolClient, job: Delivery) {
   return caseId;
 }
 
-export async function workDelivery() {
+export async function workDelivery(deliveryId?: string) {
   return withTransaction(async (client) => {
+    if (deliveryId) await client.query("SET LOCAL lock_timeout = '1500ms'");
     const { rows: [job] } = await client.query<Delivery>(
       `SELECT delivery_id, team_id, source_id, payload, payload_hash, received_at, attempts, source_group
        FROM ops.deliveries WHERE status = 'QUEUED' AND available_at <= clock_timestamp()
+         AND ($1::uuid IS NULL OR delivery_id = $1)
        ORDER BY available_at, delivery_id LIMIT 1 FOR UPDATE SKIP LOCKED`,
+      [deliveryId ?? null],
     );
     if (!job) return false;
     await client.query("SAVEPOINT process_delivery");

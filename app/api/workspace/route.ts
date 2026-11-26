@@ -96,7 +96,8 @@ export async function POST(req: NextRequest) {
             [id, body.teamId, body.name, body.action, body.serviceId, repository],
           );
           await audit(client, body.teamId, user.id, "SOURCE_CREATED", id);
-          return { key, path: `/api/webhooks/alerts/${repository ? "github/" : ""}${id}` };
+          return { key, path: `/api/webhooks/alerts/${repository ? "github/" : ""}${id}`,
+            ...(body.action === "signed" ? { serviceId: body.serviceId } : {}) };
         }
       }
     });
